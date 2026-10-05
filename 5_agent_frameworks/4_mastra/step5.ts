@@ -16,7 +16,7 @@ import "./env.ts";
 import { join } from "node:path";
 import { mkdirSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { Agent } from "@mastra/core/agent";
-import { boardTools, makeFilesystem, WORKSPACE } from "./tools.ts";
+import { boardTools, makeFilesystem, listFilesystemTools, WORKSPACE } from "./tools.ts";
 import { resetBoard, addGoal, claimTodo, showBoard } from "./board.ts";
 import { makeModel } from "./model.ts";
 
@@ -43,7 +43,7 @@ const worker = new Agent({
   name: "Worker",
   instructions: INSTRUCTIONS,
   model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
-  tools: { ...boardTools, ...(await filesystem.listTools()) },
+  tools: { ...boardTools, ...(await listFilesystemTools(filesystem)) },
 });
 
 await worker.generate("Please work the pending goal on the board.", { maxSteps: 25 });

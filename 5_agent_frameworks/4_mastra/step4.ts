@@ -12,7 +12,7 @@
 
 import "./env.ts";
 import { Agent } from "@mastra/core/agent";
-import { makeFilesystem } from "./tools.ts";
+import { makeFilesystem, listFilesystemTools } from "./tools.ts";
 import { makeModel } from "./model.ts";
 
 const filesystem = makeFilesystem();
@@ -22,7 +22,7 @@ const fileAgent = new Agent({
   name: "File Agent",
   instructions: "You can read and write files in your workspace. Use your tools to do what is asked.",
   model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
-  tools: await filesystem.listTools(),
+  tools: await listFilesystemTools(filesystem),
 });
 
 const reply = await fileAgent.generate("Read notes.txt and summarize it in one short sentence.");
