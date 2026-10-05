@@ -18,6 +18,7 @@ import { mkdirSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { Agent } from "@mastra/core/agent";
 import { boardTools, makeFilesystem, WORKSPACE } from "./tools.ts";
 import { resetBoard, addGoal, claimTodo, showBoard } from "./board.ts";
+import { makeModel } from "./model.ts";
 
 const GOAL = "Read notes.txt, translate its contents into natural Spanish, and write the Spanish to spanish.txt.";
 
@@ -41,7 +42,7 @@ const worker = new Agent({
   id: "worker",
   name: "Worker",
   instructions: INSTRUCTIONS,
-  model: "openai/gpt-5.4-mini",
+  model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
   tools: { ...boardTools, ...(await filesystem.listTools()) },
 });
 

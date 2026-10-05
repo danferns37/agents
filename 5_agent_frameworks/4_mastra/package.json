@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.71",
+    "@ai-sdk/openai-compatible": "^3.0.62",
     "@mastra/core": "^1.42.0",
     "@mastra/mcp": "^1.10.0",
     "dotenv": "^17.2.3",

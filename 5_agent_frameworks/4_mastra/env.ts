@@ -24,3 +24,12 @@ function findEnv(start = process.cwd()): string | undefined {
 }
 
 config({ path: findEnv(), override: true, quiet: true });
+
+if (!process.env.OPENAI_BASE_URL && !process.env.OPENAI_API_KEY) {
+  process.env.OPENAI_BASE_URL = "http://localhost:11434/v1";
+  process.env.OPENAI_API_KEY = "ollama";
+}
+
+if (!process.env.WORKER_MODEL) {
+  process.env.WORKER_MODEL = "gpt-oss:20b";
+}

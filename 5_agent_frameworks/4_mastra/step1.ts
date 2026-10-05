@@ -9,12 +9,13 @@
 
 import "./env.ts";
 import { Agent } from "@mastra/core/agent";
+import { makeModel } from "./model.ts";
 
 const agent = new Agent({
   id: "assistant",
   name: "Assistant",
   instructions: "You are a concise, friendly assistant. Reply in a single short sentence.",
-  model: "openai/gpt-5.4-mini",
+  model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
 });
 
 console.log(`Created agent: ${agent.name}`);

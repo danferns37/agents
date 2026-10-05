@@ -25,6 +25,7 @@ import { mkdirSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { Agent } from "@mastra/core/agent";
 import { boardTools, makeFilesystem, WORKSPACE } from "./tools.ts";
 import { resetBoard, addGoal, claimTodo, showBoard, BOARD_PATH } from "./board.ts";
+import { makeModel } from "./model.ts";
 
 // Day 5 mode is "<taskId> <boardPath>". Run bare (npm run worker), none of this fires.
 const args = process.argv.slice(2);
@@ -68,7 +69,7 @@ const worker = new Agent({
   id: "worker",
   name: "Worker",
   instructions: INSTRUCTIONS,
-  model: "openai/" + (process.env.WORKER_MODEL ?? "gpt-5.4-mini"),
+  model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
   tools: { ...boardTools, ...(await filesystem.listTools()) },
 });
 

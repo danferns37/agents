@@ -20,6 +20,7 @@ import { Mastra } from "@mastra/core/mastra";
 import { Agent } from "@mastra/core/agent";
 import { boardTools } from "../../tools.ts";
 import { resetBoard, addGoal, claimTodo } from "../../board.ts";
+import { makeModel } from "../../model.ts";
 
 const NOTE =
   "Welcome to the team. Today we are building a small language tutor, one piece at a time. Each helper picks a single task from the shared board, does the work carefully, and marks it done.";
@@ -32,7 +33,7 @@ export const worker = new Agent({
   name: "Worker",
   instructions:
     "You are a careful worker with a shared todo board. Read the pending goal with show_todos and do what it asks. Always record your finished work by calling complete_task with the goal's id and your result, which marks the goal done. Then reply with your result so the user can read it.",
-  model: "openai/gpt-5.4-mini",
+  model: makeModel(process.env.WORKER_MODEL ?? "llama3.2:latest"),
   tools: boardTools,
 });
 
