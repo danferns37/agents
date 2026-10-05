@@ -148,14 +148,23 @@ function withCoercedNumbers(tool: any): any {
 function coerceNumbers(value: unknown, numberKeys: Set<string>): unknown {
   if (!value || typeof value !== "object" || Array.isArray(value)) return value;
   const input = value as Record<string, unknown>;
+  const fixed: Record<string, unknown> = {};
   let changed = false;
-  const fixed: Record<string, unknown> = { ...input };
-  for (const key of numberKeys) {
-    const item = fixed[key];
-    if (typeof item === "string" && item.trim() !== "" && Number.isFinite(Number(item))) {
-      fixed[key] = Number(item);
-      changed = true;
+  for (const [key, item] of Object.entries(input)) {
+    if (!numberKeys.has(key)) {
+      fixed[key] = item;
+      continue;
     }
+    const asNumber = typeof item === "string" && item.trim() !== "" ? Number(item) : item;
+    // Drop a zero, which this server reads as "not supplied". Local models
+    // like to send head: 0 and tail: 0 rather than leave them out, and passing
+    // them through makes the server answer "cannot specify both".
+    if (typeof asNumber === "number" && Number.isFinite(asNumber) && asNumber === 0) {
+      changed = true;
+      continue;
+    }
+    if (asNumber !== item) changed = true;
+    fixed[key] = asNumber;
   }
   return changed ? fixed : value;
 }

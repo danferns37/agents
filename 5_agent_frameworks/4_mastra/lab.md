@@ -43,6 +43,28 @@ A little one-time setup. Two directories matter, so the commands below say which
 
 Run every step below from a terminal in **this Mastra directory**. Each one is `npm run stepN`, which is just `tsx stepN.ts` under the hood.
 
+### Running this day at no cost, with Ollama
+
+You do not need an OpenAI key to work through the day. With [Ollama](https://ollama.com) running locally and no `OPENAI_API_KEY` in your `.env`, `env.ts` points the day at `http://localhost:11434/v1` and uses the placeholder key `ollama`. Ollama speaks the OpenAI chat-completions shape, so every step runs unchanged.
+
+```bash
+ollama pull llama3.2     # the default here: small, fast, free
+```
+
+Override the model with `WORKER_MODEL` in the repo-root `.env`, or per run:
+
+```bash
+WORKER_MODEL=gemma4:12b npm run step5      # Linux/macOS
+$env:WORKER_MODEL='gemma4:12b'; npm run step5   # Windows PowerShell
+```
+
+Two things to know when you run small local models, because they are what the code in `tools.ts` now handles for you:
+
+- **The filesystem server advertises 14 tools.** Handing all of them to a small model is a lot of choice, and it includes a deprecated `read_file` beside a near-identical `read_text_file`. `listFilesystemTools` passes on only the two this day uses, `filesystem_read_text_file` and `filesystem_write_file`. Set `FILESYSTEM_TOOLS=all` in your `.env` to get the full server back.
+- **Small models send numbers as strings.** `head: "1"` where the schema says `number` is rejected by the MCP server, and the model rarely recovers. `listFilesystemTools` coerces those arguments before validation, so `"1"` behaves like `1`.
+
+Which model you can expect to get through depends on your machine. Steps 1 to 4 are single tool calls and `llama3.2` handles them in seconds on CPU. Step 5 is the agent loop: it has to plan several steps and keep tool arguments straight, and `llama3.2` can call a tool without its required arguments and then stall. Give step 5 a bigger model, and expect it to be slow, since it is running on your CPU unless you have a GPU.
+
 ## Our project this week: a SQLite todo board
 
 Open `board.ts`. It is the TypeScript twin of the `board.py` from Days 1 to 3: one file, one table, no server to run, using Node's built-in `node:sqlite`. A worker is handed one **goal**; to reach it, it writes its own **step** todos under that goal, ticks each one off as it goes, and closes the goal at the end. `showBoard()` prints it in the rich style from Week 1, each goal with its steps indented beneath, done todos struck through in green.

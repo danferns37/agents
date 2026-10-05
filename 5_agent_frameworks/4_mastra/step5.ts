@@ -46,7 +46,16 @@ const worker = new Agent({
   tools: { ...boardTools, ...(await listFilesystemTools(filesystem)) },
 });
 
-await worker.generate("Please work the pending goal on the board.", { maxSteps: 25 });
+// Print each tool call as it happens, so you can watch the loop turn: plan,
+// act, check off, repeat.
+await worker.generate("Please work the pending goal on the board.", {
+  maxSteps: 25,
+  onStepFinish: (step: { toolCalls?: { payload: { toolName: string; args?: unknown } }[] }) => {
+    for (const call of step.toolCalls ?? []) {
+      console.log(`  called ${call.payload.toolName}(${JSON.stringify(call.payload.args)})`);
+    }
+  },
+});
 await filesystem.disconnect();
 
 console.log("\nBoard after the run:");
